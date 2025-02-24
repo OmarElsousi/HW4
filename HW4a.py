@@ -3,9 +3,7 @@ This script demonstrates how to generate random rock diameters from a truncated 
 calculate their sample statistics, and examine the distribution of those statistics across multiple samples.
 
 Key features of this script:
-1. It provides detailed docstrings within each function, explaining the mathematical and programming steps.
-2. It includes thorough inline comments to help beginners understand each line of code.
-3. It accepts user inputs for distribution parameters and sample sizes, but falls back to default values if no input is given.
+1. It accepts user inputs for distribution parameters and sample sizes, but falls back to default values if no input is given.
 
 Dependencies:
 - math: For various mathematical functions (exp, log, sqrt, etc.)

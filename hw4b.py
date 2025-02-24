@@ -3,17 +3,6 @@ This script generates graphs for the Truncated Log-Normal Probability Density Fu
 and Cumulative Distribution Function (CDF). It illustrates the relationship between the
 PDF and CDF, highlighting the area under the curve corresponding to a specific probability.
 
-The script is designed with beginners in mind, including detailed docstrings,
-step-by-step explanations, and in-line comments for each function.
-
-Key Features:
-- User input for mean (mean_ln), standard deviation (sig_ln), D_Min, and D_Max.
-- Defaults are set to mean_ln=0.690, sig_ln=1.000, D_Min=0.365, D_Max=1.000.
-- Graphs for Truncated Log-Normal PDF and CDF with annotations and shading.
-- Educational focus with region markers and detailed explanations.
-- Comprehensive docstrings and comments for educational purposes.
-"""
-
 # region Imports
 # Import necessary libraries for numerical operations and plotting
 import numpy as np
