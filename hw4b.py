@@ -2,6 +2,7 @@
 This script generates graphs for the Truncated Log-Normal Probability Density Function (PDF)
 and Cumulative Distribution Function (CDF). It illustrates the relationship between the
 PDF and CDF, highlighting the area under the curve corresponding to a specific probability.
+"""
 
 # region Imports
 # Import necessary libraries for numerical operations and plotting
@@ -15,12 +16,9 @@ sys.path.append('/mnt/data')
 
 # Import functions from X1SP25_1.py for truncated log-normal calculations
 from X1SP25_1 import getFDMaxFDMin, tln_PDF, F_tlnpdf
-
-
 # endregion
 
 # region Input Function
-
 def get_input(prompt, default):
     """
     Prompts the user for input with a default value. Accepts up to three decimal places.
@@ -59,8 +57,6 @@ def get_input(prompt, default):
         except ValueError:
             # Handle invalid input and show error message
             print("Invalid input. Please enter a valid number.")
-
-
 # endregion
 
 # region User Inputs
