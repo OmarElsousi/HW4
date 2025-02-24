@@ -1,188 +1,179 @@
 """
-File name: hw4b.py
+This script generates graphs for the Truncated Log-Normal Probability Density Function (PDF)
+and Cumulative Distribution Function (CDF). It illustrates the relationship between the
+PDF and CDF, highlighting the area under the curve corresponding to a specific probability.
 
-Description:
-    This script illustrates how to plot the PDF (probability density function) and CDF
-    (cumulative distribution function) for a truncated log-normal distribution over a
-    specified domain [dmin, dmax]. The code parallels the approach in HW4a (Gaussian case)
-    but replaces the normal distribution with a log-normal that has been truncated to
-    [dmin, dmax].
+The script is designed with beginners in mind, including detailed docstrings,
+step-by-step explanations, and in-line comments for each function.
 
-    We:
-      1) Prompt (or hard-code) the user for log-normal parameters mu, sigma,
-         and the bounds dmin, dmax.
-      2) Construct the truncated log-normal PDF and CDF using custom functions.
-      3) Choose a cutoff point D_cut = dmin + 0.75*(dmax - dmin) and compute the probability
-         P(D < D_cut).
-      4) Plot the PDF (upper panel) and CDF (lower panel) in a two-panel figure,
-         shading the area up to D_cut on the PDF plot and highlighting the corresponding
-         point on the CDF.
-
-Author:
-    Your Name, Date
-
-Usage:
-    python hw4b.py
-
-Dependencies:
-    - numpy
-    - matplotlib
-    - scipy.stats
-
+Key Features:
+- User input for mean (mean_ln), standard deviation (sig_ln), D_Min, and D_Max.
+- Defaults are set to mean_ln=0.690, sig_ln=1.000, D_Min=0.365, D_Max=1.000.
+- Graphs for Truncated Log-Normal PDF and CDF with annotations and shading.
+- Educational focus with region markers and detailed explanations.
+- Comprehensive docstrings and comments for educational purposes.
 """
 
-import matplotlib.pyplot as plt
+# region Imports
+# Import necessary libraries for numerical operations and plotting
 import numpy as np
-from scipy import stats
+import matplotlib.pyplot as plt
+from math import log
+import sys
 
-def truncated_lognorm_pdf(x, mu, sigma, dmin, dmax):
+# Add the directory containing numericalMethods and X1SP25_1 to the Python path
+sys.path.append('/mnt/data')
+
+# Import functions from X1SP25_1.py for truncated log-normal calculations
+from X1SP25_1 import getFDMaxFDMin, tln_PDF, F_tlnpdf
+
+
+# endregion
+
+# region Input Function
+
+def get_input(prompt, default):
     """
-    Compute the truncated log-normal PDF over [dmin, dmax].
+    Prompts the user for input with a default value. Accepts up to three decimal places.
 
-    The standard log-normal PDF for random variable D is:
-        f_LN(D) = (1 / (D * sigma * sqrt(2 pi))) * exp( - (ln(D) - mu)^2 / (2 sigma^2) ),
-        for D > 0.
+    Step-by-Step:
+    1. Display a prompt message to the user, showing the default value.
+    2. If the user provides input, try to convert it to a float and round to three decimal places.
+    3. If the input is invalid or left blank, use the default value.
+    4. Return the validated user input or default value.
 
-    The truncated version on [dmin, dmax] is:
-        f_TLN(D) = f_LN(D) / Z   if  dmin <= D <= dmax,
-                    0           otherwise,
-    where
-        Z = F_LN(dmax) - F_LN(dmin)
-    is the normalization factor (the difference between the untruncated CDF at dmax
-    and dmin).
+    Parameters:
+    -----------
+    prompt : str
+        The message to display to the user.
+    default : float
+        The default value to use if no input is provided or if the input is invalid.
 
-    Parameters
-    ----------
-    x : np.ndarray
-        Array of D-values at which to evaluate the truncated PDF.
-    mu : float
-        Mean (mu) of the underlying log(D) distribution.
-    sigma : float
-        Standard deviation (sigma) of the underlying log(D) distribution.
-    dmin : float
-        Lower bound of truncation.
-    dmax : float
-        Upper bound of truncation.
+    Returns:
+    --------
+    float
+        The user input value rounded to three decimal places or the default value.
 
-    Returns
-    -------
-    np.ndarray
-        Array of truncated log-normal PDF values at the points in x.
+    Example:
+    --------
+    >>> mean_ln = get_input("Enter mean (default 0.690): ", 0.690)
+    >>> # If user inputs 0.75, the returned value will be 0.750
+    >>> # If user presses Enter, the returned value will be 0.690
     """
+    while True:
+        try:
+            # Prompt user for input and round to three decimal places
+            value = input(prompt)
+            # If valid input is provided, convert to float and round
+            # If input is empty, use the default value
+            return round(float(value), 3) if value else default
+        except ValueError:
+            # Handle invalid input and show error message
+            print("Invalid input. Please enter a valid number.")
 
-    ln_dist = stats.lognorm(s=sigma, scale=np.exp(mu))
-    Z = ln_dist.cdf(dmax) - ln_dist.cdf(dmin)
-    pdf_untrunc = ln_dist.pdf(x)
-    pdf_untrunc[(x < dmin) | (x > dmax)] = 0.0
-    return pdf_untrunc / Z
 
-def truncated_lognorm_cdf(x, mu, sigma, dmin, dmax):
-    """
-    Compute the truncated log-normal CDF over [dmin, dmax].
+# endregion
 
-    The untruncated log-normal CDF is:
-        F_LN(D) = P(X <= D) for a log-normal random variable X.
+# region User Inputs
+"""
+This section handles user inputs for the parameters of the pre-sieved log-normal 
+distribution and the sieved truncated log-normal distribution.
 
-    The truncated version on [dmin, dmax] is:
-        F_TLN(D) = [F_LN(D) - F_LN(dmin)] / [F_LN(dmax) - F_LN(dmin)],
-                    for dmin <= D <= dmax,
-                  0  for D < dmin,
-                  1  for D > dmax.
+Parameters:
+- mean_ln: Mean of the natural logarithm of the rock diameters.
+- sig_ln: Standard deviation of the natural logarithm of the rock diameters.
+- D_Min: Minimum diameter corresponding to the small aperture size.
+- D_Max: Maximum diameter corresponding to the large aperture size.
 
-    Parameters
-    ----------
-    x : np.ndarray
-        Array of D-values at which to evaluate the truncated CDF.
-    mu : float
-        Mean (mu) of the underlying log(D) distribution.
-    sigma : float
-        Standard deviation (sigma) of the underlying log(D) distribution.
-    dmin : float
-        Lower bound of truncation.
-    dmax : float
-        Upper bound of truncation.
+Defaults:
+- mean_ln = 0.690
+- sig_ln = 1.000
+- D_Min = 0.375
+- D_Max = 1.000
 
-    Returns
-    -------
-    np.ndarray
-        Array of truncated log-normal CDF values at the points in x.
-    """
+These defaults are chosen based on standard examples for truncated log-normal distributions.
+"""
+# Get user inputs with default values
+mean_ln = get_input("Enter mean of ln(D) for pre-sieved rocks (default 0.693): ", 0.693)
+sig_ln = get_input("Enter standard deviation of ln(D) (default 1.000): ", 1.000)
+D_Min = get_input("Enter small aperture size D_Min (default .375): ", 0.375)
+D_Max = get_input("Enter large aperture size D_Max (default 1): ", 1.000)
+# endregion
 
-    ln_dist = stats.lognorm(s=sigma, scale=np.exp(mu))
-    Z = ln_dist.cdf(dmax) - ln_dist.cdf(dmin)
-    cdf_untrunc = ln_dist.cdf(x)
-    cdf_trunc = (cdf_untrunc - ln_dist.cdf(dmin)) / Z
-    cdf_trunc[x < dmin] = 0.0
-    cdf_trunc[x > dmax] = 1.0
-    return cdf_trunc
+# region Calculations
+"""
+This section calculates the necessary values for plotting the Truncated Log-Normal 
+Probability Density Function (PDF) and Cumulative Distribution Function (CDF).
 
-def main():
-    """
-    Main driver function that:
-      1) Specifies (or prompts for) mu, sigma, dmin, dmax.
-      2) Chooses D_cut as the 75% span between dmin and dmax.
-      3) Computes truncated log-normal PDF and CDF arrays for plotting.
-      4) Fills the region up to D_cut in the PDF plot.
-      5) Marks the corresponding point in the CDF plot.
-      6) Shows the final figure with two stacked subplots.
+Calculations include:
+1. F_DMin and F_DMax: These are the cumulative distribution function values at D_Min 
+   and D_Max, which normalize the truncated log-normal distribution.
+2. PDF and CDF: Using numpy arrays, the truncated log-normal PDF and CDF are calculated
+   for a range of diameters between D_Min and D_Max.
+3. Shading Area: The shaded area corresponds to the cumulative probability up to
+   D_fill, which is calculated as 75% of the range between D_Min and D_Max.
+"""
+# Calculate F_DMin and F_DMax using the imported function
+F_DMin, F_DMax = getFDMaxFDMin((mean_ln, sig_ln, D_Min, D_Max))
 
-    Returns
-    -------
-    None
-    """
+# Define the range for D using numpy's linspace function
+D = np.linspace(D_Min, D_Max, 500)
 
-    mu = 0.69
-    sigma = 1.00
-    dmin = 0.047
-    dmax = 0.244
-    D_cut = dmin + 0.75 * (dmax - dmin)
+# Calculate the truncated log-normal PDF and CDF for each value in D
+pdf = np.array([tln_PDF((d, mean_ln, sig_ln, F_DMin, F_DMax)) for d in D])
+cdf = np.array([F_tlnpdf((mean_ln, sig_ln, D_Min, D_Max, d, F_DMax, F_DMin)) for d in D])
 
-    Dvals = np.linspace(dmin, dmax, 500)
-    fvals = truncated_lognorm_pdf(Dvals, mu, sigma, dmin, dmax)
-    Fvals = truncated_lognorm_cdf(Dvals, mu, sigma, dmin, dmax)
-    p_val = truncated_lognorm_cdf(np.array([D_cut]), mu, sigma, dmin, dmax)[0]
+# Determine the point of integration for shading (75% of the way between D_Min and D_Max)
+D_fill = D_Min + (D_Max - D_Min) * 0.75
+D_shade = D[D <= D_fill]
+pdf_shade = pdf[D <= D_fill]
+F_fill = F_tlnpdf((mean_ln, sig_ln, D_Min, D_Max, D_fill, F_DMax, F_DMin))
+# endregion
 
-    fig, axs = plt.subplots(2, 1, sharex=True, figsize=(6, 6))
-    ax_pdf = axs[0]
-    ax_cdf = axs[1]
+# region Plotting
+"""
+This section creates the plots for:
+1. Truncated Log-Normal PDF with shaded area showing cumulative probability.
+2. Truncated Log-Normal CDF with markers and lines showing the relationship to the PDF.
 
-    ax_pdf.plot(Dvals, fvals, color='blue')
-    ax_pdf.set_ylabel('f(D)', size=12)
-    ax_pdf.set_xlim(dmin, dmax)
-    ax_pdf.set_ylim(0, fvals.max() * 1.1)
+The graphs include:
+- Axis labels
+- Grid lines for better visualization
+- Annotations explaining the shaded area and mathematical equations
+"""
+# Create the plot with two subplots (PDF and CDF)
+fig, ax = plt.subplots(2, 1, sharex=True, figsize=(10, 8))
 
-    fill_mask = (Dvals >= dmin) & (Dvals <= D_cut)
-    ax_pdf.fill_between(Dvals[fill_mask], fvals[fill_mask], color='grey', alpha=0.4)
+# Plot the PDF
+ax[0].plot(D, pdf, color='blue', label='Truncated Log-Normal PDF')
+ax[0].fill_between(D_shade, pdf_shade, color='grey', alpha=0.7)
+ax[0].set_ylabel('f(D)', fontsize=12)
+ax[0].set_ylim(0, max(pdf) * 1.1)
 
-    text_x = dmin + 0.05 * (dmax - dmin)
-    text_y = 0.6 * fvals.max()
-    ax_pdf.text(
-        text_x, text_y,
-        r'$f(D) = \frac{1}{D \sigma \sqrt{2\pi}} \exp \left[-\frac{(\ln D - \mu)^2}{2\sigma^2}\right] / \text{(norm. const.)}$'
-    )
+# Display the equation for the log-normal PDF
+ax[0].text(D_Min + 0.05, max(pdf) * 0.75,
+           r'$f(D) = \frac{1}{D\sigma\sqrt{2\pi}}e^{-\frac{1}{2}\left(\frac{\ln(D)-\mu}{\sigma}\right)^2}$',
+           fontsize=12)
 
-    arrow_x = dmin + 0.5 * (D_cut - dmin)
-    arrow_y = 0.5 * truncated_lognorm_pdf(np.array([arrow_x]), mu, sigma, dmin, dmax)[0]
-    annotation_str = f'P(D < {D_cut:.3f} | TLN) = {p_val:.2f}'
-    ax_pdf.annotate(
-        annotation_str,
-        xy=(arrow_x, arrow_y),
-        xytext=(text_x, 0.4 * text_y),
-        arrowprops=dict(arrowstyle='->', connectionstyle='arc3'),
-        size=8
-    )
+# Annotation for shaded area showing cumulative probability
+ax[0].annotate(
+    r'$P(D<%0.3f|TLN(%0.3f,%0.3f,%0.3f, %0.3f))=%0.3f$' % (D_fill, mean_ln, sig_ln, F_DMin, F_DMax, F_fill),
+    xy=(D_fill, max(pdf) * 0.5), xytext=(D_Min + 0.1, max(pdf) * 0.6),
+    arrowprops=dict(facecolor='black', arrowstyle='->'),
+    fontsize=10
+)
 
-    ax_cdf.plot(Dvals, Fvals, color='blue')
-    ax_cdf.set_ylabel(r'$\Phi(D)=\int_{D_{\min}}^{\,D} f(D)\,dD$', size=12)
-    ax_cdf.set_xlabel('D')
-    ax_cdf.set_ylim(0, 1)
+ax[0].grid(True)
 
-    ax_cdf.plot(D_cut, p_val, 'o', markerfacecolor='white', markeredgecolor='red')
-    ax_cdf.hlines(p_val, dmin, D_cut, color='black', linewidth=1)
-    ax_cdf.vlines(D_cut, 0, p_val, color='black', linewidth=1)
+# Plot the CDF
+ax[1].plot(D, cdf, label='Truncated Log-Normal CDF', color='blue')
+ax[1].set_xlabel('x', fontsize=12)
+ax[1].set_ylabel(r'$\Phi(x)=\int_{D_{min}}^{x} f(D) dD$', fontsize=12)
+ax[1].plot(D_fill, F_fill, 'o', markerfacecolor='white', markeredgecolor='red')
+ax[1].hlines(F_fill, D_Min, D_fill, color='black', linewidth=1)
+ax[1].vlines(D_fill, 0, F_fill, color='black', linewidth=1)
+ax[1].grid(True)
 
-    plt.tight_layout()
-    plt.show()
-
-if __name__ == "__main__":
-    main()
+plt.tight_layout()
+plt.show()
+# endregion

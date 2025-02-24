@@ -27,9 +27,13 @@
   <component name="Git.Settings">
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
-  <component name="ProjectColorInfo"><![CDATA[{
-  "associatedIndex": 3
-}]]></component>
+  <component name="HighlightingSettingsPerFile">
+    <setting file="file://$PROJECT_DIR$/../AppData/Local/Temp/8b0a1559-a62b-4a2b-9302-cbdcceb7d8a5_HW4_SP25-main.zip.HW4_SP25-main.zip/HW4_SP25-main/Stem/HW4a_SP24.py" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/../AppData/Local/Temp/990efe8e-3bbf-4b17-acec-f187068423a5_HW4_SP25-main.zip.HW4_SP25-main.zip/HW4_SP25-main/Stem/HW4a_SP24.py" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="ProjectColorInfo">{
+  &quot;associatedIndex&quot;: 3
+}</component>
   <component name="ProjectId" id="2tElL6GlYuCVXS3xD4lqmM1eLSC" />
   <component name="ProjectLevelVcsManager" settingsEditedManually="true" />
   <component name="ProjectViewState">
@@ -38,11 +42,17 @@
   </component>
   <component name="PropertiesComponent"><![CDATA[{
   "keyToString": {
+    "Python tests.Doctests in hw4b.executor": "Run",
+    "Python.HW4a.executor": "Run",
+    "Python.HW4a_SP24.executor": "Run",
+    "Python.Test.executor": "Run",
     "Python.X1SP25_1.executor": "Run",
     "Python.hw4b.executor": "Run",
     "Python.main.executor": "Run",
+    "Python.test.executor": "Run",
     "RunOnceActivity.ShowReadmeOnStart": "true",
-    "git-widget-placeholder": "master"
+    "git-widget-placeholder": "master",
+    "last_opened_file_path": "C:/Users/The Sous PC/HW4/hw4b.py"
   }
 }]]></component>
   <component name="RunManager">
